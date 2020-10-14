@@ -1,0 +1,45 @@
+body{
+    background-image: url("style/fondo4.jpg");
+    background-size: cover ;
+    font-family:  Helvetica;	
+}
+
+.txt2{
+    position: absolute ;
+    color: rgb(110, 109, 109);	
+    font-size: 18px;
+    left:13%;
+	top:46%;
+}
+
+.fondo{
+    position: absolute;
+	left:50%;
+	top:50%;
+	transform: translate(-50%,-50%);
+    background-color: rgba(255, 255, 255, 0.5);
+	border-radius:15px;
+    padding:25px 80px;
+}
+
+.text_Form {
+    border:0;
+    border-bottom:1px solid #555;  
+    background:transparent;
+    width:100%;
+    padding:8px ;
+    font-size:18px;
+    color:rgb(0, 10, 9);	
+}
+
+
+
+.boton{
+	background-color:#3c72e7;
+    border: 5;
+    color: #fff;
+	padding:10px 100px;
+	text-transform:uppercase;
+	border-radius:10px;
+	cursor:pointer;
+}

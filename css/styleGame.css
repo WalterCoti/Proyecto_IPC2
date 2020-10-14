@@ -1,0 +1,52 @@
+body {
+    text-align: center;
+}
+
+.head_Marcador {
+    Height: 100px;
+    background-color: blueviolet;
+    display: flex;
+    justify-content: center;
+}
+.feet_Pagina {
+    Height: 100px;
+    background-color: blueviolet;
+}
+
+.tablero_Completo {
+    background-position: center;
+    Width: 650px;
+    Height: 694px;
+    background-image: url(style/FondoTab.png);
+    border-radius: 35px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    right: 0;
+}
+
+.lateral_zone {
+    Width: 300px;
+    Height: 564px;
+    background-color: yellow;
+}
+
+.tablero_Centro {
+    Width: 520px;
+    Height: 564px;
+    background-color: forestgreen;
+}
+
+.contenedor {
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.ficha {
+    border-radius: 100%;
+    background-color: forestgreen;
+    border-bottom: 1px;
+    justify-content: center;
+}
+

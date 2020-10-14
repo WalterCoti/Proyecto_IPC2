@@ -106,7 +106,20 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="About.aspx" />
+    <Content Include="css\styleGame.css" />
+    <Content Include="css\styleLogin.css" />
+    <Content Include="css\styleReg.css" />
+    <Content Include="css\style\fondo1.jpg" />
+    <Content Include="css\style\fondo2.jpg" />
+    <Content Include="css\style\fondo3.png" />
+    <Content Include="css\style\fondo4.jpg" />
+    <Content Include="css\style\fondo5.jpg" />
+    <Content Include="css\style\fondo6.jpg" />
+    <Content Include="css\style\FondoTab.png" />
+    <Content Include="css\style\othello.jpg" />
+    <Content Include="css\style\Tablerito.jpg" />
+    <Content Include="css\style\tablero.png" />
+    <Content Include="Reporte.aspx" />
     <Content Include="Contact.aspx" />
     <Content Include="Content\bootstrap-theme.css" />
     <Content Include="Content\bootstrap-theme.min.css" />
@@ -164,15 +177,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\BundleConfig.cs" />
-    <Compile Include="About.aspx.cs">
-      <DependentUpon>About.aspx</DependentUpon>
+    <Compile Include="Reporte.aspx.cs">
+      <DependentUpon>Reporte.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="About.aspx.designer.cs">
-      <DependentUpon>About.aspx</DependentUpon>
+    <Compile Include="Reporte.aspx.designer.cs">
+      <DependentUpon>Reporte.aspx</DependentUpon>
     </Compile>
     <Compile Include="App_Start\RouteConfig.cs" />
-    <Compile Include="docXML.cs" />
     <Compile Include="Contact.aspx.cs">
       <DependentUpon>Contact.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -230,7 +242,7 @@
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Cargas\" />
-    <Folder Include="style\" />
+    <Folder Include="Controllers\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
