@@ -396,14 +396,51 @@ namespace Othello
                             else
                             {
                                 tablero[i, j].BackColor = Color.Green;
-                                //tablero[i, j].Enabled = false;
-                                Value_UP(i, j, Color_Act, Color_rival);
-                                Value_Up_Left(i, j, Color_Act, Color_rival);
-                                Value_Left(i, j, Color_Act, Color_rival);
-                                Value_Down_Left(i, j, Color_Act, Color_rival);
-                                Value_Down(i, j, Color_Act, Color_rival);
-
-                                Value_Rigth(i, j, Color_Act, Color_rival);
+                                tablero[i, j].Enabled = false;
+                               
+                                if (Value_UP(i, j, Color_Act, Color_rival)) //analiza hacia arriba
+                                {
+                                    tablero[i, j].BackColor = Color.Gray;
+                                    tablero[i, j].Enabled = true;
+                                    
+                                }
+                                
+                                if (Value_Up_Left(i, j, Color_Act, Color_rival))//analiza hacia arriba y a la izquierda
+                                {
+                                    tablero[i, j].BackColor = Color.Gray;
+                                    tablero[i, j].Enabled = true;
+                                }
+                                if (Value_Left(i, j, Color_Act, Color_rival))// analiza hacia la izquierda
+                                {
+                                    tablero[i, j].BackColor = Color.Gray;
+                                    tablero[i, j].Enabled = true;
+                                }
+                                if (Value_Down_Left(i, j, Color_Act, Color_rival)) // analiza hacia abajo y a la izquierda
+                                {
+                                    tablero[i, j].BackColor = Color.Gray;
+                                    tablero[i, j].Enabled = true;
+                                }
+                                if (Value_Down(i, j, Color_Act, Color_rival))// analiza hacia abajo
+                                {
+                                    tablero[i, j].BackColor = Color.Gray;
+                                    tablero[i, j].Enabled = true;
+                                }
+                                if (Value_Down_Rigth(i, j, Color_Act, Color_rival))//analiza hacia abajo y derecha
+                                {
+                                    tablero[i, j].BackColor = Color.Gray;
+                                    tablero[i, j].Enabled = true;
+                                }
+                                if (Value_Rigth(i, j, Color_Act, Color_rival))//analiza hacia la derecha
+                                {
+                                    tablero[i, j].BackColor = Color.Gray;
+                                    tablero[i, j].Enabled = true;
+                                }
+                                if (Value_UP_Rigth(i, j, Color_Act, Color_rival))//analiza hacia arriba y derecha
+                                {
+                                    tablero[i, j].BackColor = Color.Gray;
+                                    tablero[i, j].Enabled = true;
+                                }
+                                
 
                             }
                         }
@@ -415,7 +452,7 @@ namespace Othello
             }
         }
 
-        public void Value_UP(int fila, int columna, string ColorA, string ColorB)
+        public Boolean Value_UP(int fila, int columna, string ColorA, string ColorB)
         {
             try
             {
@@ -433,22 +470,26 @@ namespace Othello
                         {
                             if (distancia > 0)
                             {
-                                tablero[fila, columna].BackColor = Color.Gray;
-                                //tablero[fila, columna].BorderColor = Color.Red;
-                                tablero[fila, columna].Enabled = true;
-                                break;
+                                return true;
+                                
                             }
+                           
                         }
+
                     }
-                    break;
+                    else
+                    {
+                        return false;
+                    }
+
                 }
             } catch (Exception exeption)
             {
 
             }
+            return false;
         }
-
-        public void Value_Up_Left(int fila, int columna, string ColorA, string ColorB)
+        public Boolean Value_Up_Left(int fila, int columna, string ColorA, string ColorB)
         {
             try
             {
@@ -468,24 +509,21 @@ namespace Othello
                             {
                                 if (distancia > 0)
                                 {
-                                    tablero[fila, columna].BackColor = Color.Gray;
-                                    tablero[fila, columna].Enabled = true;
-                                    break;
+                                    return true;
+
                                 }
                             }
-                        }
-                        break;
+                        }     
                     }
-                    break;
                 }
             }
             catch (Exception exeption)
             {
 
             }
+            return false;
         }
-
-        public void Value_Left(int fila, int columna, string ColorA, string ColorB)
+        public Boolean Value_Left(int fila, int columna, string ColorA, string ColorB)
         {
             try
             {
@@ -503,22 +541,24 @@ namespace Othello
                         {
                             if (distancia > 0)
                             {
-                                tablero[fila, columna].BackColor = Color.Gray;
-                                tablero[fila, columna].Enabled = true;
-                                break;
+                                return true;
                             }
                         }
                     }
-                    break;
+                    else
+                    {
+                        return false;
+                    }
+                   
                 }
             }
             catch (Exception exeption)
             {
 
             }
+            return false;
         }
-
-        public void Value_Down_Left(int fila, int columna, string ColorA, string ColorB)
+        public Boolean Value_Down_Left(int fila, int columna, string ColorA, string ColorB)
         {
             int distancia = 0;
             for (int i = fila; i <= 5; i++)
@@ -538,15 +578,13 @@ namespace Othello
                             {
                                 if (distancia > 0)
                                 {
-                                    tablero[fila, columna].BackColor = Color.Red;
-                                    tablero[fila, columna].Enabled = true;
-                                    break;
+                                    return true;
                                 }
                             }
                         }
                         else
                         {
-                            break;
+                            return false;
                         }
                     }
                     catch (Exception exeption)
@@ -556,11 +594,9 @@ namespace Othello
 
                 }
             }
-
+            return false;
         }
-    
-
-        public void Value_Down(int fila, int columna, string ColorA, string ColorB)
+        public Boolean Value_Down(int fila, int columna, string ColorA, string ColorB)
         {
             try
             {
@@ -579,26 +615,62 @@ namespace Othello
                         {
                             if (distancia > 0)
                             {
-                                tablero[fila, columna].BackColor = Color.Gray;
-                                tablero[fila, columna].Enabled = true;
-                                break;
+                                return true;
                             }
                         }
                     }
                     else
                     {
-                        break;
+                        return false;
                     }
                  
                 }
             }
             catch (Exception exeption)
             {
-
+                return false;
             }
+            return false;
         }
+        public Boolean Value_Down_Rigth(int fila, int columna, string ColorA, string ColorB)
+        {
+            int distancia = 0;
+            for (int i = fila; i <= 8; i++)
+            {
+                for (int j = columna; j <= 8; j++)
+                {
+                    try
+                    {
+                        if (tablero[i + 1, j + 1].TieneFicha)
+                        {
+                            if (tablero[i + 1, j + 1].colorFicha == ColorB)
+                            {
+                                distancia++;
+                                break;
+                            }
+                            else if (tablero[i + 1, j + 1].colorFicha == ColorA)
+                            {
+                                if (distancia > 0)
+                                {
+                                    return true;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                    catch (Exception exeption)
+                    {
+                        return false;
+                    }
 
-        public void Value_Rigth(int fila, int columna, string ColorA, string ColorB)
+                }
+            }
+            return false;
+        }
+        public Boolean Value_Rigth(int fila, int columna, string ColorA, string ColorB)
         {
             try
             {
@@ -617,31 +689,61 @@ namespace Othello
                         {
                             if (distancia > 0)
                             {
-                                tablero[fila, columna].BackColor = Color.Gray;
-                                tablero[fila, columna].Enabled = true;
-                                break;
+                                return true;
                             }
                         }
                     }
                     else
                     {
-                        break;
+                        return false;
                     }
 
                 }
             }
             catch (Exception exeption)
             {
-
+                return false;
             }
+            return false;
         }
-
-        public void marcarPosible(int fila, int columna)
+        public Boolean Value_UP_Rigth(int fila, int columna, string ColorA, string ColorB)
         {
-            tablero[fila, columna].BackColor = Color.Gray;
+            int distancia = 0;
+            for (int i = fila; i >= 0; i--)
+            {
+                for (int j = columna; j <= 8; j++)
+                {
+                    try
+                    {
+                        if (tablero[i - 1, j + 1].TieneFicha)
+                        {
+                            if (tablero[i - 1, j + 1].colorFicha == ColorB)
+                            {
+                                distancia++;
+                                break;
+                            }
+                            else if (tablero[i - 1, j + 1].colorFicha == ColorA)
+                            {
+                                if (distancia > 0)
+                                {
+                                    return true;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                    catch (Exception exeption)
+                    {
+                        return false;
+                    }
+                }
+            }
+            return false;
+            
         }
-
-
-
+ 
     }
 }
