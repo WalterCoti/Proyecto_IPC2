@@ -117,6 +117,7 @@
     <Content Include="css\style\fondo6.jpg" />
     <Content Include="css\style\FondoTab.png" />
     <Content Include="css\style\othello.jpg" />
+    <Content Include="css\style\patronMade.jpg" />
     <Content Include="css\style\Tablerito.jpg" />
     <Content Include="css\style\tablero.png" />
     <Content Include="Reporte.aspx" />

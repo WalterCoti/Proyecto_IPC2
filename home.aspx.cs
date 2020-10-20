@@ -12,41 +12,63 @@ using System.Runtime.Remoting.Messaging;
 using System.IO;
 using System.Xml;
 using System.Security.Cryptography.X509Certificates;
+using System.Web.UI.HtmlControls;
+using System.Timers;
+using System.Threading;
+using System.Diagnostics;
+using System.Web.WebSockets;
+
 namespace Othello
 {
-
+    
 
     public partial class _Default : Page
     {
         static int turno = 1;
+        static int tab_Alto = 8;
+        static int tab_Ancho = 8;
+        static int con_Fichas = 0;
         private static Celda cldaNueva;
-        private static Celda[,] tablero = new Celda[8, 8];
-
+        private  Celda[,] tablero;
+        private Color colorDeseado = Color.BlueViolet;
+        Stopwatch cronos = new Stopwatch();
 
         protected void Page_Load(object sender, EventArgs e)
         {
+            //Thread t = new Thread(());
+          //  Thread tab = new Thread(imprimir_Tab);
             Panel1.Controls.Clear();
             imprimir_Tab();
+           // t.Start();
+          //  tab.Start();
+        }
+       
+        private void cronometroPlayer()
+        {
+            TimeSpan time = cronos.Elapsed;
+            lb_cronom.Text = time.ToString("mm\\:ss\\.ff");
         }
 
+       
 
         public void CrearTablero()
         {
-            for (int i = 0; i < 8; i++)
+            tablero = new Celda[tab_Alto, tab_Ancho];
+            for (int i = 0; i < tab_Alto; i++)
             {
-                for (int j = 0; j < 8; j++)
+                for (int j = 0; j < tab_Ancho; j++)
                 {
                     cldaNueva = new Celda();
-                    cldaNueva.Width = 65;
-                    cldaNueva.Height = 65;
+                    cldaNueva.Width = 50;
+                    cldaNueva.Height = 50;
                     cldaNueva.Columna = j;
-                    // cldaNueva.BackColor = Color.Red;
                     cldaNueva.Fila = i;
-                    cldaNueva.CssClass = "ficha";
+                    cldaNueva.CssClass = "ficha"; 
                     tablero[i, j] = cldaNueva;
                 }
             }
             imprimir_Tab();
+            cronos.Start();    
         }
 
         class Celda : System.Web.UI.WebControls.Button
@@ -71,6 +93,7 @@ namespace Othello
                 FichaSeleccionada.TieneFicha = true;
                 turno = 1;
                 posValida("blanco", "negro");
+                cambiarColor(FichaSeleccionada.Fila, FichaSeleccionada.Columna, "blanco", "negro");
                // imprimir_Tab();
             }
             else if (turno == 1)
@@ -81,27 +104,31 @@ namespace Othello
                 FichaSeleccionada.TieneFicha = true;
                 turno = 0;
                 posValida("negro", "blanco");
-               // imprimir_Tab();
+                cambiarColor(FichaSeleccionada.Fila, FichaSeleccionada.Columna, "negro", "blanco");
+                // imprimir_Tab();
             }
         }
 
         private void imprimir_Tab()
         {
-            //Panel1.Controls.Clear();
-            for (int i = 0; i < 8; i++)
-            {
-                for (int j = 0; j < 8; j++)
-                {
-                    if (tablero[i, j] == null)
+            Panel1.Controls.Clear();
+            for (int i = 0; i < tab_Alto; i++)
+            { 
+                for (int j = 0; j < tab_Ancho; j++)
+                { 
+                    if (tablero == null)
                     {
                         break;
                     }
                     else
                     {
-
+                       
+                        Panel1.Width = 50 * tab_Ancho;
+                        Panel1.Height = (56 * tab_Alto);
                         tablero[i, j].Click += new EventHandler(this.Ficha_click);
+                        BordeTablero();
                         Panel1.Controls.Add(tablero[i, j]);
-
+                       
                     }
                 }
             }
@@ -116,11 +143,53 @@ namespace Othello
             }
         }
 
+        private void BordeTablero()
+         {
+            
+            for (int i = 1; i < tab_Alto-1; i++)
+             {
+                
+                
+                //-------------------------FILA SE AGREGA EL NUMERO-----------------------
+
+                tablero[i, 0].CssClass = "borde_tablero";
+                tablero[i, 0].Text = i.ToString();
+                tablero[i, 0].Enabled = false;
+                tablero[i, tab_Ancho - 1].CssClass = "borde_tablero";
+                tablero[i, tab_Ancho - 1].Text = i.ToString();
+                tablero[i, tab_Ancho - 1].Enabled = false;
+
+             }
+            for (int j = 1; j < tab_Ancho - 1; j++)
+            {
+                //------------------------- COLUMNA SE AGREGA EL TEXTO---------------
+                tablero[0, j].CssClass = "borde_tablero";
+                tablero[0, j].Enabled = false;
+                tablero[tab_Alto - 1, j].CssClass = "borde_tablero";
+                tablero[tab_Alto - 1, j].Enabled = false;
+                foreach (KeyValuePair<int, string> tmp_Alpha in int_to_alpha)
+                {
+                    if (tmp_Alpha.Key == j)
+                    {
+                        tablero[0, j].Text = tmp_Alpha.Value;
+                        tablero[tab_Alto - 1, j].Text = tmp_Alpha.Value;
+                    }
+                }
+            }
+                tablero[0, 0].CssClass = "borde_tablero";
+            tablero[0, 0].Enabled = false;
+            tablero[0, tab_Ancho - 1].CssClass = "borde_tablero";
+            tablero[0, tab_Ancho - 1].Enabled = false;
+            tablero[tab_Alto - 1, 0].CssClass = "borde_tablero";
+            tablero[tab_Alto - 1, 0].Enabled = false;
+            tablero[tab_Alto - 1, tab_Ancho - 1].CssClass = "borde_tablero";
+            tablero[tab_Alto - 1, tab_Ancho - 1].Enabled = false;
+        }   
+
         protected void LeerXML_Click(object sender, EventArgs e)
         {
-            if (tablero[0, 0] == null) {
-                MessageBox.Show("Debe iniciar una aprtida Primero");
-
+            if (tablero == null) {
+                CrearTablero();
             }
             else
             {
@@ -209,7 +278,7 @@ namespace Othello
             try
             {
                 Celda xmlCelda = tablero[Fila - 1, Columna - 1];
-                if (Fila > 8 || Columna > 8)
+                if (Fila > tab_Alto-1 || Columna > tab_Ancho-1)
                 {
                     MessageBox.Show("Esta ficha no puede colocarse fuera del tablero");
                 }
@@ -255,9 +324,9 @@ namespace Othello
             XmlElement element1 = doc.CreateElement(string.Empty, "tablero", string.Empty);
             doc.AppendChild(element1);
 
-            for (int i = 0; i < 8; i++)
+            for (int i = 1; i < tab_Alto-1; i++)
             {
-                for (int j = 0; j < 8; j++)
+                for (int j = 1; j < tab_Ancho-1; j++)
                 {
                     Celda creaxmlCelda = tablero[i, j];
                     Boolean numa = creaxmlCelda.TieneFicha;
@@ -317,14 +386,26 @@ namespace Othello
 
         Dictionary<int, string> int_to_alpha = new Dictionary<int, string>
             {
-                {0,"A"},
-                {1,"B"},
-                {2,"C"},
-                {3,"D"},
-                {4,"E"},
-                {5,"F"},
-                {6,"G"},
-                {7,"H" }
+                {1,"A"},
+                {2,"B"},
+                {3,"C"},
+                {4,"D"},
+                {5,"E"},
+                {6,"F"},
+                {7,"G"},
+                {8,"H"},
+                {9,"I"},
+                {10,"J"},
+                {11,"K"},
+                {12,"L"},
+                {13,"M"},
+                {14,"N"},
+                {15,"O"},
+                {16,"P"},
+                {17,"Q"},
+                {18,"R"},
+                {19,"S"},
+                {20,"T"}
             };
 
         Dictionary<string, int> alpha_to_int = new Dictionary<string, int>
@@ -336,40 +417,62 @@ namespace Othello
                 {"E",5},
                 {"F",6},
                 {"G",7},
-                {"H",8}
+                {"H",8},
+                {"I",9},
+                {"J",10},
+                {"K",11},
+                {"L",12},
+                {"M",13},
+                {"N",14},
+                {"O",15},
+                {"P",16},
+                {"Q",17},
+                {"R",18},
+                {"S",19},
+                {"T",20}
+               
             };
 
         protected void Button1_Click(object sender, EventArgs e)
         {
+            tab_Alto = Int32.Parse(txtAltura.Text)+2;
+            tab_Ancho = Int32.Parse(txtAncho.Text)+2;
             CrearTablero();
             iniciarPartida_PVP();
             imprimir_Tab();
-            PartidaPVP.Visible = false;
-            Partida_CPU.Visible = false;
-
+            //PartidaPVP.Visible = false;
+            //Partida_CPU.Visible = false;
+        
 
         }
         private void iniciarPartida_PVP()
         {
-            tablero[3, 3].TieneFicha = true;
-            tablero[3, 3].BackColor = Color.White;
-            tablero[3, 3].Enabled = false;
-            tablero[3, 3].colorFicha = "blanco";
+            int x;
+            if (tab_Alto % 2 == 0)
+            {
+                x = (tab_Alto-2) / 2;
+                tablero[x, x].TieneFicha = true;
+                tablero[x, x].BackColor = Color.White;
+                tablero[x, x].Enabled = false;
+                tablero[x, x].colorFicha = "blanco";
 
-            tablero[3, 4].TieneFicha = true;
-            tablero[3, 4].BackColor = Color.Black;
-            tablero[3, 4].Enabled = false;
-            tablero[3, 4].colorFicha = "negro";
+                tablero[x, x + 1].TieneFicha = true;
+                tablero[x, x + 1].BackColor = Color.Black;
+                tablero[x, x + 1].Enabled = false;
+                tablero[x, x + 1].colorFicha = "negro";
 
-            tablero[4, 3].TieneFicha = true;
-            tablero[4, 3].BackColor = Color.Black;
-            tablero[4, 3].Enabled = false;
-            tablero[4, 3].colorFicha = "negro";
+                tablero[x + 1, x].TieneFicha = true;
+                tablero[x + 1, x].BackColor = Color.Black;
+                tablero[x + 1, x].Enabled = false;
+                tablero[x + 1, x].colorFicha = "negro";
 
-            tablero[4, 4].TieneFicha = true;
-            tablero[4, 4].BackColor = Color.White;
-            tablero[4, 4].Enabled = false;
-            tablero[4, 4].colorFicha = "blanco";
+                tablero[x + 1, x + 1].TieneFicha = true;
+                tablero[x + 1, x + 1].BackColor = Color.White;
+                tablero[x + 1, x + 1].Enabled = false;
+                tablero[x + 1, x + 1].colorFicha = "blanco";
+            }
+
+            
 
 
         }
@@ -379,18 +482,17 @@ namespace Othello
         {
             try
             {
-                for (int i = 0; i < 8; i++)
+                for (int i = 0; i < tab_Alto-1; i++)
                 {
-                    for (int j = 0; j < 8; j++)
+                    for (int j = 0; j < tab_Ancho-1; j++)
                     {
-                        if (tablero[i, j] == null)
+                        if (tablero == null)
                         {
                         }
                         else
                         {
                             if (tablero[i, j].TieneFicha == true)//Busco los espacios vacios, para saber si es marcable o no
                             {
-
                                 continue;
                             }
                             else
@@ -456,19 +558,19 @@ namespace Othello
         {
             try
             {
-                int distancia = 0;
-                for (int i = fila; i >= 0; i--)
+                con_Fichas = 0;
+                for (int i = 1; i <= tab_Alto-1; i++)
                 {
-                    if (tablero[i - 1, columna].TieneFicha)
+                    if (tablero[fila - i, columna].TieneFicha)
                     {
-                        if (tablero[i - 1, columna].colorFicha == ColorB)
+                        if (tablero[fila - i, columna].colorFicha == ColorB)
                         {
-                            distancia++;
+                            con_Fichas++;
                             continue;
                         }
-                        else if (tablero[i - 1, columna].colorFicha == ColorA)
+                        else if (tablero[fila - i, columna].colorFicha == ColorA)
                         {
-                            if (distancia > 0)
+                            if (con_Fichas > 0)
                             {
                                 return true;
                                 
@@ -485,7 +587,7 @@ namespace Othello
                 }
             } catch (Exception exeption)
             {
-
+                return false;
             }
             return false;
         }
@@ -493,33 +595,30 @@ namespace Othello
         {
             try
             {
-                int distancia = 0;
-                for (int i = fila; i >= 0; i--)
-                {
-                    for (int j = columna; j >= 0; j--)
+                con_Fichas = 0;
+                for (int i = 1; i <= tab_Alto - 1; i++)
+                { 
+                    if (tablero[fila - i, columna - i].TieneFicha)
                     {
-                        if (tablero[i - 1, j - 1].TieneFicha)
+                        if (tablero[fila - i, columna - i].colorFicha == ColorB)
                         {
-                            if (tablero[fila, j - 1].colorFicha == ColorB)
+                            con_Fichas++;
+                            continue;
+                        }
+                        else if (tablero[fila - i, columna - i].colorFicha == ColorA)
+                        {
+                            if (con_Fichas > 0)
                             {
-                                distancia++;
-                                continue;
+                                return true;
                             }
-                            else if (tablero[i - 1, j - 1].colorFicha == ColorA)
-                            {
-                                if (distancia > 0)
-                                {
-                                    return true;
-
-                                }
-                            }
-                        }     
-                    }
+                        }
+                    }     
+                    
                 }
             }
             catch (Exception exeption)
             {
-
+                return false;
             }
             return false;
         }
@@ -527,19 +626,19 @@ namespace Othello
         {
             try
             {
-                int distancia = 0;
-                for (int j = columna; j >= 0; j--)
+                con_Fichas = 0;
+                for (int i = 1; i <= tab_Alto - 1; i++)
                 {
-                    if (tablero[fila, j - 1].TieneFicha)
+                    if (tablero[fila, columna - i].TieneFicha)
                     {
-                        if (tablero[fila, j - 1].colorFicha == ColorB)
+                        if (tablero[fila, columna - i].colorFicha == ColorB)
                         {
-                            distancia++;
+                            con_Fichas++;
                             continue;
                         }
-                        else if (tablero[fila, j - 1].colorFicha == ColorA)
+                        else if (tablero[fila, columna - i].colorFicha == ColorA)
                         {
-                            if (distancia > 0)
+                            if (con_Fichas > 0)
                             {
                                 return true;
                             }
@@ -554,29 +653,27 @@ namespace Othello
             }
             catch (Exception exeption)
             {
-
+                return false;
             }
             return false;
         }
         public Boolean Value_Down_Left(int fila, int columna, string ColorA, string ColorB)
         {
-            int distancia = 0;
-            for (int i = fila; i <= 5; i++)
+            con_Fichas = 0;
+            for (int i = 1; i <= tab_Alto - 1; i++)
             {
-                for (int j = columna; j > 0; j--)
-                {
-                    try
+                try
                     {
-                        if (tablero[i + 1, j - 1].TieneFicha)
+                        if (tablero[fila + i, columna - i].TieneFicha)
                         {
-                            if (tablero[i + 1, j - 1].colorFicha == ColorB)
+                            if (tablero[fila + i, columna - i].colorFicha == ColorB)
                             {
-                                distancia++;
+                            con_Fichas++;
                                 break;
                             }
-                            else if (tablero[i + 1, j - 1].colorFicha == ColorA)
+                            else if (tablero[fila + i, columna - i].colorFicha == ColorA)
                             {
-                                if (distancia > 0)
+                                if (con_Fichas > 0)
                                 {
                                     return true;
                                 }
@@ -589,10 +686,9 @@ namespace Othello
                     }
                     catch (Exception exeption)
                     {
-
+                        return false;
                     }
 
-                }
             }
             return false;
         }
@@ -600,20 +696,20 @@ namespace Othello
         {
             try
             {
-                int distancia = 0;
-                for (int i = fila; i <= 8; i++)
+                con_Fichas = 0;
+                for (int i = 1; i <= tab_Alto - 1; i++)
                 {
-                    if (tablero[i+1, columna].TieneFicha)
+                    if (tablero[fila+i, columna].TieneFicha)
                     {
                         
-                        if (tablero[i + 1, columna].colorFicha == ColorB)
+                        if (tablero[fila + i, columna].colorFicha == ColorB)
                         {
-                            distancia++;
+                            con_Fichas++;
                             continue;
                         }
-                        else if (tablero[i + 1, columna].colorFicha == ColorA)
+                        else if (tablero[fila + i, columna].colorFicha == ColorA)
                         {
-                            if (distancia > 0)
+                            if (con_Fichas > 0)
                             {
                                 return true;
                             }
@@ -634,38 +730,34 @@ namespace Othello
         }
         public Boolean Value_Down_Rigth(int fila, int columna, string ColorA, string ColorB)
         {
-            int distancia = 0;
-            for (int i = fila; i <= 8; i++)
+            con_Fichas = 0;
+            for (int i = fila; i <= tab_Alto - 1; i++)
             {
-                for (int j = columna; j <= 8; j++)
+                try
                 {
-                    try
+                    if (tablero[fila + i, columna + i].TieneFicha)
                     {
-                        if (tablero[i + 1, j + 1].TieneFicha)
+                        if (tablero[fila + i, columna + i].colorFicha == ColorB)
                         {
-                            if (tablero[i + 1, j + 1].colorFicha == ColorB)
-                            {
-                                distancia++;
-                                break;
-                            }
-                            else if (tablero[i + 1, j + 1].colorFicha == ColorA)
-                            {
-                                if (distancia > 0)
-                                {
-                                    return true;
-                                }
-                            }
+                            con_Fichas++;
+                            break;
                         }
-                        else
+                        else if (tablero[fila + i, columna + i].colorFicha == ColorA)
                         {
-                            return false;
+                            if (con_Fichas > 0)
+                            {
+                                return true;
+                            }
                         }
                     }
-                    catch (Exception exeption)
+                    else
                     {
                         return false;
                     }
-
+                }
+                catch (Exception exeption)
+                {
+                    return false;
                 }
             }
             return false;
@@ -674,20 +766,20 @@ namespace Othello
         {
             try
             {
-                int distancia = 0;
-                for (int j = columna; j <= 8; j++)
+                con_Fichas = 0;
+                for (int i = 1; i <= tab_Alto - 1; i++)
                 {
-                    if (tablero[fila, j+1].TieneFicha)
+                    if (tablero[fila, columna + i].TieneFicha)
                     {
 
-                        if (tablero[fila, j + 1].colorFicha == ColorB)
+                        if (tablero[fila, columna + i].colorFicha == ColorB)
                         {
-                            distancia++;
+                            con_Fichas++;
                             continue;
                         }
-                        else if (tablero[fila, j + 1].colorFicha == ColorA)
+                        else if (tablero[fila, columna + i].colorFicha == ColorA)
                         {
-                            if (distancia > 0)
+                            if (con_Fichas > 0)
                             {
                                 return true;
                             }
@@ -708,42 +800,127 @@ namespace Othello
         }
         public Boolean Value_UP_Rigth(int fila, int columna, string ColorA, string ColorB)
         {
-            int distancia = 0;
-            for (int i = fila; i >= 0; i--)
+            con_Fichas = 0;
+            for (int i = 1; i <= tab_Alto - 1; i++)
             {
-                for (int j = columna; j <= 8; j++)
+                try
                 {
-                    try
+                    if (tablero[fila - 1, columna + 1].TieneFicha)
                     {
-                        if (tablero[i - 1, j + 1].TieneFicha)
+                        if (tablero[fila - 1, columna + 1].colorFicha == ColorB)
                         {
-                            if (tablero[i - 1, j + 1].colorFicha == ColorB)
-                            {
-                                distancia++;
-                                break;
-                            }
-                            else if (tablero[i - 1, j + 1].colorFicha == ColorA)
-                            {
-                                if (distancia > 0)
-                                {
-                                    return true;
-                                }
-                            }
+                            con_Fichas++;
+                            break;
                         }
-                        else
+                        else if (tablero[fila - 1, columna + 1].colorFicha == ColorA)
                         {
-                            return false;
+                            if (con_Fichas > 0)
+                            {
+                                return true;
+                            }
                         }
                     }
-                    catch (Exception exeption)
+                    else
                     {
                         return false;
                     }
                 }
+                catch (Exception exeption)
+                {
+                    return false;
+                }
+               
             }
             return false;
             
         }
- 
+
+        protected void Partida_CPU_Click(object sender, EventArgs e)
+        {
+           
+        }
+
+        private void voltearFicha(int fila,int columna,string colorTurno)
+        {
+            if (colorTurno == "negro")
+            {
+                tablero[fila, columna].colorFicha = colorTurno;
+                tablero[fila, columna].BackColor = Color.Black;
+            }
+            else if (colorTurno == "blanco")
+            {
+                tablero[fila, columna].colorFicha = colorTurno;
+                tablero[fila, columna].BackColor = Color.White;
+            }
+        }
+        private void cambiarColor(int Fila_ini, int Columna_ini, string color_Turno, string color_Rival)
+        {
+           
+                if (Value_UP(Fila_ini,Columna_ini,color_Turno,color_Rival))
+                {
+                    for (int i = 1; i <= con_Fichas; i++)// el click en el boton me da la ficha actual
+                    {
+                        voltearFicha(Fila_ini - i, Columna_ini, color_Turno);                 
+                    
+                    }
+
+                if (Value_Up_Left(Fila_ini, Columna_ini, color_Turno, color_Rival))//analiza hacia arriba y a la izquierda
+                {
+                    for (int i = 1; i <= con_Fichas; i++)// el click en el boton me da la ficha actual
+                    {
+                        voltearFicha(Fila_ini - i, Columna_ini - i, color_Turno);
+                    }
+                }
+                if (Value_Left(Fila_ini, Columna_ini, color_Turno, color_Rival))// analiza hacia la izquierda
+                {
+                    for (int i = 1; i <= con_Fichas; i++)// el click en el boton me da la ficha actual
+                    {
+                        voltearFicha(Fila_ini, Columna_ini - i, color_Turno);
+
+                    }
+                }
+                if (Value_Down_Left(Fila_ini, Columna_ini, color_Turno, color_Rival)) // analiza hacia abajo y a la izquierda
+                {
+                    for (int i = 1; i <= con_Fichas; i++)// el click en el boton me da la ficha actual
+                    {
+                        voltearFicha(Fila_ini + i, Columna_ini - i, color_Turno);
+                    }
+                }
+                if (Value_Down(Fila_ini, Columna_ini, color_Turno, color_Rival))// analiza hacia abajo
+                {
+                    for (int i = 1; i <= con_Fichas; i++)// el click en el boton me da la ficha actual
+                    {
+                        voltearFicha(Fila_ini + i, Columna_ini, color_Turno);
+                    }
+                }
+                if (Value_Down_Rigth(Fila_ini, Columna_ini, color_Turno, color_Rival))//analiza hacia abajo y derecha
+                {
+                    for (int i = 1; i <= con_Fichas; i++)// el click en el boton me da la ficha actual
+                    {
+                        voltearFicha(Fila_ini + i, Columna_ini + i, color_Turno); 
+                    }
+                }
+                if (Value_Rigth(Fila_ini, Columna_ini, color_Turno, color_Rival))//analiza hacia la derecha
+                {
+                    for (int i = 1; i <= con_Fichas; i++)// el click en el boton me da la ficha actual
+                    {
+                        voltearFicha(Fila_ini, Columna_ini + i, color_Turno);
+                    }
+                }
+                if (Value_UP_Rigth(Fila_ini, Columna_ini, color_Turno, color_Rival))//analiza hacia arriba y derecha
+                {
+                    for (int i = 1; i <= con_Fichas; i++)// el click en el boton me da la ficha actual
+                    {
+                        voltearFicha(Fila_ini - i, Columna_ini + i, color_Turno);
+                    }
+                }
+            }
+        }
+
+        protected void Unnamed1_Tick(object sender, EventArgs e)
+        {
+            TimeSpan ts = new TimeSpan(0, 0, 0, 0,(int)cronos.ElapsedMilliseconds);
+            lb_cronom.Text = ts.Seconds.ToString();
+        }
     }
 }

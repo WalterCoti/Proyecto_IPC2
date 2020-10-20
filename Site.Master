@@ -26,14 +26,8 @@
                 <div class="collapse navbar-collapse" id="navbarNavDropdown">
                    
                     <ul class="navbar-nav">
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Partida
-                            </a>
-                            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                                 <a ><asp:Button ID="PVP" runat="server" Text="P1 vs P2" class="dropdown-item"  OnClick="iniciarPartida_pvp"/></a>
-                                <a ><asp:Button ID="Button1" runat="server" Text="P1 vs CPU" class="dropdown-item" /></a>
-                             
-                            </div>
+                        <li class="nav-item">
+                            <a runat="server" class="nav-link" href="~/home">Partida</a> 
                         </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Torneo</a>
@@ -67,6 +61,7 @@
 
         <div class="container body-content">
             <asp:ContentPlaceHolder ID="MainContent" runat="server">
+               
             </asp:ContentPlaceHolder>
         </div>
     </form>

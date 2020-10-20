@@ -15,10 +15,6 @@ body {
 
 .tablero_Completo {
     background-position: center;
-    Width: 650px;
-    Height: 694px;
-    background-image: url(style/FondoTab.png);
-    border-radius: 35px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -31,10 +27,21 @@ body {
     background-color: yellow;
 }
 
+.borde_tablero {
+    align-items: center;
+    align-content: center;
+    font-family: helvetica;
+    font-size: 35px;
+    font-weight: 700;
+    text-align: center;
+    color: black;
+    background-image: url("style/patronMade.jpg");
+    border-radius: 5%;
+    vertical-align: top;
+}
+
 .tablero_Centro {
-    Width: 520px;
-    Height: 564px;
-    background-color: forestgreen;
+    background-color: red;
 }
 
 .contenedor {
@@ -49,4 +56,3 @@ body {
     border-bottom: 1px;
     justify-content: center;
 }
-
