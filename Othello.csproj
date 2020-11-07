@@ -120,7 +120,7 @@
     <Content Include="css\style\patronMade.jpg" />
     <Content Include="css\style\Tablerito.jpg" />
     <Content Include="css\style\tablero.png" />
-    <Content Include="Reporte.aspx" />
+    <Content Include="Perfil.aspx" />
     <Content Include="Contact.aspx" />
     <Content Include="Content\bootstrap-theme.css" />
     <Content Include="Content\bootstrap-theme.min.css" />
@@ -178,12 +178,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\BundleConfig.cs" />
-    <Compile Include="Reporte.aspx.cs">
-      <DependentUpon>Reporte.aspx</DependentUpon>
+    <Compile Include="Perfil.aspx.cs">
+      <DependentUpon>Perfil.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="Reporte.aspx.designer.cs">
-      <DependentUpon>Reporte.aspx</DependentUpon>
+    <Compile Include="Perfil.aspx.designer.cs">
+      <DependentUpon>Perfil.aspx</DependentUpon>
     </Compile>
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Contact.aspx.cs">

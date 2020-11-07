@@ -11,6 +11,7 @@ namespace Othello
 {
     public partial class Login : System.Web.UI.Page
     {
+        public static String UsuarioLog="";
         string connectionString = "Data Source = GUSTAVC; Initial Catalog = OTHELLO; Integrated Security = True";
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -24,6 +25,7 @@ namespace Othello
 
         protected void btnInicio_Click(object sender, EventArgs e)
         {
+            
             SqlConnection con = new SqlConnection(connectionString);
             con.Open();
             SqlCommand cmd = new SqlCommand("SELECT COUNT(*) FROM JUGADOR WHERE USERNAME='" + txtUsername.Text + "' AND PASSWRD = '" + txtPassword.Text+"'");
@@ -35,8 +37,9 @@ namespace Othello
                 /*Session["name"] = txtUsername.Text;
                 SiteMaster empl = new SiteMaster();
                 empl.damenombre(txtUser.Text);*/
-                Response.Redirect("home.aspx");
                 
+                UsuarioLog = txtUsername.Text;
+                Response.Redirect("home.aspx");
                 txtUsername.Text = "";
                 txtPassword.Text = "";
             }

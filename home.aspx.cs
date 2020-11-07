@@ -1,58 +1,48 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Remoting.Metadata.W3cXsd2001;
-using System.Web;
 using System.Web.UI;
-using System.Web.UI.WebControls;
 using System.Windows.Forms;
 using System.Drawing;
-using Microsoft.Ajax.Utilities;
-using System.Runtime.Remoting.Messaging;
-using System.IO;
 using System.Xml;
-using System.Security.Cryptography.X509Certificates;
-using System.Web.UI.HtmlControls;
-using System.Timers;
-using System.Threading;
+using System.Linq;
 using System.Diagnostics;
-using System.Web.WebSockets;
+
 
 namespace Othello
 {
-    
-
     public partial class _Default : Page
     {
-        static int turno = 1;
         static int tab_Alto = 8;
         static int tab_Ancho = 8;
         static int con_Fichas = 0;
         private static Celda cldaNueva;
-        private  Celda[,] tablero;
-        private Color colorDeseado = Color.BlueViolet;
-        Stopwatch cronos = new Stopwatch();
+        private static Celda[,] tablero;
+        private static string Jugador_uno = "";
+        private static string Jugador_dos = "";
+        private static List<string> Jug1 = new List<string>();
+        private static List<string> Jug2 = new List<string>();
+
+
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            //Thread t = new Thread(());
-          //  Thread tab = new Thread(imprimir_Tab);
+            if (Page.IsPostBack)
+            {
+
+            }
+            else
+            {
+                ViewState["turno"] = 0;
+            }
+
             Panel1.Controls.Clear();
             imprimir_Tab();
-           // t.Start();
-          //  tab.Start();
-        }
-       
-        private void cronometroPlayer()
-        {
-            TimeSpan time = cronos.Elapsed;
-            lb_cronom.Text = time.ToString("mm\\:ss\\.ff");
-        }
 
-       
+        }
 
         public void CrearTablero()
         {
+            
             tablero = new Celda[tab_Alto, tab_Ancho];
             for (int i = 0; i < tab_Alto; i++)
             {
@@ -63,12 +53,12 @@ namespace Othello
                     cldaNueva.Height = 50;
                     cldaNueva.Columna = j;
                     cldaNueva.Fila = i;
-                    cldaNueva.CssClass = "ficha"; 
+                    cldaNueva.CssClass = "ficha";
+
                     tablero[i, j] = cldaNueva;
                 }
             }
             imprimir_Tab();
-            cronos.Start();    
         }
 
         class Celda : System.Web.UI.WebControls.Button
@@ -80,86 +70,78 @@ namespace Othello
 
         }
 
-
         private void Ficha_click(Object sender, EventArgs e)
         {
             Celda FichaSeleccionada = (Celda)sender;
-
-            if (turno == 0)
+            if (ViewState["turno"].Equals(0))
             {
                 FichaSeleccionada.Enabled = false;
                 FichaSeleccionada.BackColor = Color.White;
                 FichaSeleccionada.colorFicha = "blanco";
                 FichaSeleccionada.TieneFicha = true;
-                turno = 1;
-                posValida("blanco", "negro");
-                cambiarColor(FichaSeleccionada.Fila, FichaSeleccionada.Columna, "blanco", "negro");
-               // imprimir_Tab();
+                ViewState["turno"] = 1;
+                // cambiarColor(FichaSeleccionada.Fila, FichaSeleccionada.Columna, "blanco", "negro");
+                // posValida("blanco", "negro");
+                //imprimir_Tab();
             }
-            else if (turno == 1)
+            else if (ViewState["turno"].Equals(1))
             {
                 FichaSeleccionada.Enabled = false;
                 FichaSeleccionada.BackColor = Color.Black;
                 FichaSeleccionada.colorFicha = "negro";
                 FichaSeleccionada.TieneFicha = true;
-                turno = 0;
-                posValida("negro", "blanco");
-                cambiarColor(FichaSeleccionada.Fila, FichaSeleccionada.Columna, "negro", "blanco");
-                // imprimir_Tab();
+                ViewState["turno"] = 0;
+                // cambiarColor(FichaSeleccionada.Fila, FichaSeleccionada.Columna, "negro", "blanco");
+                //  posValida("negro", "blanco");
+                //imprimir_Tab();
             }
         }
 
         private void imprimir_Tab()
         {
-            Panel1.Controls.Clear();
+            //Panel1.Controls.Clear();
             for (int i = 0; i < tab_Alto; i++)
-            { 
+            {
                 for (int j = 0; j < tab_Ancho; j++)
-                { 
+                {
                     if (tablero == null)
                     {
                         break;
                     }
                     else
                     {
-                       
                         Panel1.Width = 50 * tab_Ancho;
                         Panel1.Height = (56 * tab_Alto);
                         tablero[i, j].Click += new EventHandler(this.Ficha_click);
                         BordeTablero();
                         Panel1.Controls.Add(tablero[i, j]);
-                       
                     }
                 }
             }
-            if (turno == 1)
+            if (ViewState["turno"].Equals(1))
             {
                 posValida("negro", "blanco");
 
             }
-            else if (turno == 0)
+            else if (ViewState["turno"].Equals(0))
             {
                 posValida("blanco", "negro");
             }
         }
 
         private void BordeTablero()
-         {
-            
-            for (int i = 1; i < tab_Alto-1; i++)
-             {
-                
-                
-                //-------------------------FILA SE AGREGA EL NUMERO-----------------------
+        {
 
+            for (int i = 1; i < tab_Alto - 1; i++)
+            {
+                //-------------------------FILA SE AGREGA EL NUMERO-----------------------
                 tablero[i, 0].CssClass = "borde_tablero";
                 tablero[i, 0].Text = i.ToString();
                 tablero[i, 0].Enabled = false;
                 tablero[i, tab_Ancho - 1].CssClass = "borde_tablero";
                 tablero[i, tab_Ancho - 1].Text = i.ToString();
                 tablero[i, tab_Ancho - 1].Enabled = false;
-
-             }
+            }
             for (int j = 1; j < tab_Ancho - 1; j++)
             {
                 //------------------------- COLUMNA SE AGREGA EL TEXTO---------------
@@ -176,7 +158,7 @@ namespace Othello
                     }
                 }
             }
-                tablero[0, 0].CssClass = "borde_tablero";
+            tablero[0, 0].CssClass = "borde_tablero";
             tablero[0, 0].Enabled = false;
             tablero[0, tab_Ancho - 1].CssClass = "borde_tablero";
             tablero[0, tab_Ancho - 1].Enabled = false;
@@ -184,92 +166,84 @@ namespace Othello
             tablero[tab_Alto - 1, 0].Enabled = false;
             tablero[tab_Alto - 1, tab_Ancho - 1].CssClass = "borde_tablero";
             tablero[tab_Alto - 1, tab_Ancho - 1].Enabled = false;
-        }   
+        }
 
-        protected void LeerXML_Click(object sender, EventArgs e)
+        protected void LeerXML_Click()
         {
-            if (tablero == null) {
-                CrearTablero();
-            }
-            else
+            string fileName = System.IO.Path.GetFileName(FileUpload1.PostedFile.FileName);// obtiene el nombre del archivo
+            FileUpload1.PostedFile.SaveAs(Server.MapPath("~/Importado/" + fileName));//lo guarda en la carpeta uploads
+            string filepath = Server.MapPath("~/Importado/" + FileUpload1.FileName);//busca el archivo en el servidor
+
+            XmlDocument xml_doc = new XmlDocument();
+            xml_doc.Load(filepath);
+
+            foreach (XmlNode node in xml_doc.DocumentElement.ChildNodes)
             {
-                if (FileUpload1.HasFile)
+                if (node.Name == "ficha")
                 {
-                    string fileName = System.IO.Path.GetFileName(FileUpload1.PostedFile.FileName);// obtiene el nombre del archivo
-                    FileUpload1.PostedFile.SaveAs(Server.MapPath("~/Importado/" + fileName));//lo guarda en la carpeta uploads
-                    string filepath = Server.MapPath("~/Importado/" + FileUpload1.FileName);//busca el archivo en el servidor
-
-                    XmlDocument xml_doc = new XmlDocument();
-                    xml_doc.Load(filepath);
-
-                    foreach (XmlNode node in xml_doc.DocumentElement.ChildNodes)
+                    string xml_color = "";
+                    int xml_columna = 0;
+                    int xml_Fila = 0;
+                    for (int i = 0; i < node.ChildNodes.Count; i++)
                     {
-                        if (node.Name == "ficha")
+                        if (node.ChildNodes[i].Name == "color")
                         {
-                            string xml_color = "";
-                            int xml_columna = 0;
-                            int xml_Fila = 0;
-                            for (int i = 0; i < node.ChildNodes.Count; i++)
+                            if (node.ChildNodes[i].InnerText == "blanco")
                             {
-                                if (node.ChildNodes[i].Name == "color")
-                                {
-                                    if (node.ChildNodes[i].InnerText == "blanco")
-                                    {
 
-                                        xml_color = "blanco";
-                                        continue;
-                                    }
-                                    else
-                                    {
-                                        xml_color = "negro";
-                                        continue;
-                                    }
-                                }
-                                else if (node.ChildNodes[i].Name == "columna")
-                                {
-                                    try
-                                    {
-                                        foreach (KeyValuePair<string, int> tmp_Alpha in alpha_to_int)
-                                        {
-                                            if (tmp_Alpha.Key == node.ChildNodes[i].InnerText)
-                                            {
-                                                xml_columna = tmp_Alpha.Value;
-                                                break;
-                                            }
-                                        }
-                                        continue;
-                                    } catch (Exception exept)
-                                    {
-                                        MessageBox.Show("Esta ficha no puede colocarse fuera del tablero");
-                                    }
-                                }
-                                else
-                                {
-                                    xml_Fila = int.Parse(node.ChildNodes[i].InnerText);
-
-                                    xml_cambio(xml_color, xml_Fila, xml_columna);
-                                    continue;
-                                }
+                                xml_color = "blanco";
+                                continue;
+                            }
+                            else
+                            {
+                                xml_color = "negro";
+                                continue;
                             }
                         }
-                        if (node.Name == "siguienteTiro")
+                        else if (node.ChildNodes[i].Name == "columna")
                         {
-                            for (int i = 0; i < node.ChildNodes.Count; i++)
+                            try
                             {
-                                if (node.ChildNodes[i].InnerText == "blanco")
+                                foreach (KeyValuePair<string, int> tmp_Alpha in alpha_to_int)
                                 {
-                                    turno = 0;
+                                    if (tmp_Alpha.Key == node.ChildNodes[i].InnerText)
+                                    {
+                                        xml_columna = tmp_Alpha.Value;
+                                        break;
+                                    }
                                 }
-                                else
-                                {
-                                    turno = 1;
-                                }
+                                continue;
+                            } catch (Exception exept)
+                            {
+                                MessageBox.Show("Esta ficha no puede colocarse fuera del tablero");
                             }
+                        }
+                        else
+                        {
+                            xml_Fila = int.Parse(node.ChildNodes[i].InnerText);
+
+                            xml_cambio(xml_color, xml_Fila, xml_columna);
+                            continue;
                         }
                     }
                 }
-                imprimir_Tab();
+                if (node.Name == "siguienteTiro")
+                {
+                    for (int i = 0; i < node.ChildNodes.Count; i++)
+                    {
+                        if (node.ChildNodes[i].InnerText == "blanco")
+                        {
+                            ViewState["turno"] = 0;
+                        }
+                        else
+                        {
+                            ViewState["turno"] = 1;
+                        }
+                    }
+                }
             }
+            imprimir_Tab();
+
         }
 
         private void xml_cambio(string color, int Fila, int Columna)
@@ -278,7 +252,7 @@ namespace Othello
             try
             {
                 Celda xmlCelda = tablero[Fila - 1, Columna - 1];
-                if (Fila > tab_Alto-1 || Columna > tab_Ancho-1)
+                if (Fila > tab_Alto - 1 || Columna > tab_Ancho - 1)
                 {
                     MessageBox.Show("Esta ficha no puede colocarse fuera del tablero");
                 }
@@ -324,9 +298,9 @@ namespace Othello
             XmlElement element1 = doc.CreateElement(string.Empty, "tablero", string.Empty);
             doc.AppendChild(element1);
 
-            for (int i = 1; i < tab_Alto-1; i++)
+            for (int i = 1; i < tab_Alto - 1; i++)
             {
-                for (int j = 1; j < tab_Ancho-1; j++)
+                for (int j = 1; j < tab_Ancho - 1; j++)
                 {
                     Celda creaxmlCelda = tablero[i, j];
                     Boolean numa = creaxmlCelda.TieneFicha;
@@ -367,7 +341,7 @@ namespace Othello
             element1.AppendChild(nodoTurno);
 
             XmlElement turnoColor = doc.CreateElement(string.Empty, "color", string.Empty);
-            if (turno == 0)
+            if (ViewState["turno"].Equals(0))
             {
                 XmlText txt_turno_color = doc.CreateTextNode("blanco");
                 nodoTurno.AppendChild(turnoColor);
@@ -430,51 +404,34 @@ namespace Othello
                 {"R",18},
                 {"S",19},
                 {"T",20}
-               
+
             };
 
-        protected void Button1_Click(object sender, EventArgs e)
-        {
-            tab_Alto = Int32.Parse(txtAltura.Text)+2;
-            tab_Ancho = Int32.Parse(txtAncho.Text)+2;
-            CrearTablero();
-            iniciarPartida_PVP();
-            imprimir_Tab();
-            //PartidaPVP.Visible = false;
-            //Partida_CPU.Visible = false;
-        
 
-        }
         private void iniciarPartida_PVP()
         {
-            int x;
-            if (tab_Alto % 2 == 0)
-            {
-                x = (tab_Alto-2) / 2;
-                tablero[x, x].TieneFicha = true;
-                tablero[x, x].BackColor = Color.White;
-                tablero[x, x].Enabled = false;
-                tablero[x, x].colorFicha = "blanco";
+            int x = (int)((tab_Alto - 2) / 2);
+            int y = (int)((tab_Ancho - 2) / 2);
 
-                tablero[x, x + 1].TieneFicha = true;
-                tablero[x, x + 1].BackColor = Color.Black;
-                tablero[x, x + 1].Enabled = false;
-                tablero[x, x + 1].colorFicha = "negro";
+            tablero[x, y].TieneFicha = true;
+            tablero[x, y].BackColor = Color.White;
+            tablero[x, y].Enabled = false;
+            tablero[x, y].colorFicha = "blanco";
 
-                tablero[x + 1, x].TieneFicha = true;
-                tablero[x + 1, x].BackColor = Color.Black;
-                tablero[x + 1, x].Enabled = false;
-                tablero[x + 1, x].colorFicha = "negro";
+            tablero[x, y + 1].TieneFicha = true;
+            tablero[x, y + 1].BackColor = Color.Black;
+            tablero[x, y + 1].Enabled = false;
+            tablero[x, y + 1].colorFicha = "negro";
 
-                tablero[x + 1, x + 1].TieneFicha = true;
-                tablero[x + 1, x + 1].BackColor = Color.White;
-                tablero[x + 1, x + 1].Enabled = false;
-                tablero[x + 1, x + 1].colorFicha = "blanco";
-            }
+            tablero[x + 1, y].TieneFicha = true;
+            tablero[x + 1, y].BackColor = Color.Black;
+            tablero[x + 1, y].Enabled = false;
+            tablero[x + 1, y].colorFicha = "negro";
 
-            
-
-
+            tablero[x + 1, y + 1].TieneFicha = true;
+            tablero[x + 1, y + 1].BackColor = Color.White;
+            tablero[x + 1, y + 1].Enabled = false;
+            tablero[x + 1, y + 1].colorFicha = "blanco";
         }
 
 
@@ -482,9 +439,9 @@ namespace Othello
         {
             try
             {
-                for (int i = 0; i < tab_Alto-1; i++)
+                for (int i = 0; i < tab_Alto - 1; i++)
                 {
-                    for (int j = 0; j < tab_Ancho-1; j++)
+                    for (int j = 0; j < tab_Ancho - 1; j++)
                     {
                         if (tablero == null)
                         {
@@ -499,50 +456,58 @@ namespace Othello
                             {
                                 tablero[i, j].BackColor = Color.Green;
                                 tablero[i, j].Enabled = false;
-                               
+
                                 if (Value_UP(i, j, Color_Act, Color_rival)) //analiza hacia arriba
                                 {
+                                    tablero[i, j].Click += new EventHandler(this.Ficha_click);
                                     tablero[i, j].BackColor = Color.Gray;
                                     tablero[i, j].Enabled = true;
-                                    
+
                                 }
-                                
+
                                 if (Value_Up_Left(i, j, Color_Act, Color_rival))//analiza hacia arriba y a la izquierda
                                 {
+                                    tablero[i, j].Click += new EventHandler(this.Ficha_click);
                                     tablero[i, j].BackColor = Color.Gray;
                                     tablero[i, j].Enabled = true;
                                 }
                                 if (Value_Left(i, j, Color_Act, Color_rival))// analiza hacia la izquierda
                                 {
+                                    tablero[i, j].Click += new EventHandler(this.Ficha_click);
                                     tablero[i, j].BackColor = Color.Gray;
                                     tablero[i, j].Enabled = true;
                                 }
                                 if (Value_Down_Left(i, j, Color_Act, Color_rival)) // analiza hacia abajo y a la izquierda
                                 {
+                                    tablero[i, j].Click += new EventHandler(this.Ficha_click);
                                     tablero[i, j].BackColor = Color.Gray;
                                     tablero[i, j].Enabled = true;
                                 }
                                 if (Value_Down(i, j, Color_Act, Color_rival))// analiza hacia abajo
                                 {
+                                    tablero[i, j].Click += new EventHandler(this.Ficha_click);
                                     tablero[i, j].BackColor = Color.Gray;
                                     tablero[i, j].Enabled = true;
                                 }
                                 if (Value_Down_Rigth(i, j, Color_Act, Color_rival))//analiza hacia abajo y derecha
                                 {
+                                    tablero[i, j].Click += new EventHandler(this.Ficha_click);
                                     tablero[i, j].BackColor = Color.Gray;
                                     tablero[i, j].Enabled = true;
                                 }
                                 if (Value_Rigth(i, j, Color_Act, Color_rival))//analiza hacia la derecha
                                 {
+                                    tablero[i, j].Click += new EventHandler(this.Ficha_click);
                                     tablero[i, j].BackColor = Color.Gray;
                                     tablero[i, j].Enabled = true;
                                 }
                                 if (Value_UP_Rigth(i, j, Color_Act, Color_rival))//analiza hacia arriba y derecha
                                 {
+                                    tablero[i, j].Click += new EventHandler(this.Ficha_click);
                                     tablero[i, j].BackColor = Color.Gray;
                                     tablero[i, j].Enabled = true;
                                 }
-                                
+
 
                             }
                         }
@@ -559,7 +524,7 @@ namespace Othello
             try
             {
                 con_Fichas = 0;
-                for (int i = 1; i <= tab_Alto-1; i++)
+                for (int i = 1; i <= tab_Alto - 1; i++)
                 {
                     if (tablero[fila - i, columna].TieneFicha)
                     {
@@ -573,9 +538,9 @@ namespace Othello
                             if (con_Fichas > 0)
                             {
                                 return true;
-                                
+
                             }
-                           
+
                         }
 
                     }
@@ -597,7 +562,7 @@ namespace Othello
             {
                 con_Fichas = 0;
                 for (int i = 1; i <= tab_Alto - 1; i++)
-                { 
+                {
                     if (tablero[fila - i, columna - i].TieneFicha)
                     {
                         if (tablero[fila - i, columna - i].colorFicha == ColorB)
@@ -612,8 +577,8 @@ namespace Othello
                                 return true;
                             }
                         }
-                    }     
-                    
+                    }
+
                 }
             }
             catch (Exception exeption)
@@ -648,7 +613,7 @@ namespace Othello
                     {
                         return false;
                     }
-                   
+
                 }
             }
             catch (Exception exeption)
@@ -663,31 +628,31 @@ namespace Othello
             for (int i = 1; i <= tab_Alto - 1; i++)
             {
                 try
+                {
+                    if (tablero[fila + i, columna - i].TieneFicha)
                     {
-                        if (tablero[fila + i, columna - i].TieneFicha)
+                        if (tablero[fila + i, columna - i].colorFicha == ColorB)
                         {
-                            if (tablero[fila + i, columna - i].colorFicha == ColorB)
-                            {
                             con_Fichas++;
-                                break;
-                            }
-                            else if (tablero[fila + i, columna - i].colorFicha == ColorA)
-                            {
-                                if (con_Fichas > 0)
-                                {
-                                    return true;
-                                }
-                            }
+                            break;
                         }
-                        else
+                        else if (tablero[fila + i, columna - i].colorFicha == ColorA)
                         {
-                            return false;
+                            if (con_Fichas > 0)
+                            {
+                                return true;
+                            }
                         }
                     }
-                    catch (Exception exeption)
+                    else
                     {
                         return false;
                     }
+                }
+                catch (Exception exeption)
+                {
+                    return false;
+                }
 
             }
             return false;
@@ -699,9 +664,9 @@ namespace Othello
                 con_Fichas = 0;
                 for (int i = 1; i <= tab_Alto - 1; i++)
                 {
-                    if (tablero[fila+i, columna].TieneFicha)
+                    if (tablero[fila + i, columna].TieneFicha)
                     {
-                        
+
                         if (tablero[fila + i, columna].colorFicha == ColorB)
                         {
                             con_Fichas++;
@@ -719,7 +684,7 @@ namespace Othello
                     {
                         return false;
                     }
-                 
+
                 }
             }
             catch (Exception exeption)
@@ -829,18 +794,18 @@ namespace Othello
                 {
                     return false;
                 }
-               
+
             }
             return false;
-            
+
         }
 
         protected void Partida_CPU_Click(object sender, EventArgs e)
         {
-           
+
         }
 
-        private void voltearFicha(int fila,int columna,string colorTurno)
+        private void voltearFicha(int fila, int columna, string colorTurno)
         {
             if (colorTurno == "negro")
             {
@@ -855,72 +820,154 @@ namespace Othello
         }
         private void cambiarColor(int Fila_ini, int Columna_ini, string color_Turno, string color_Rival)
         {
-           
-                if (Value_UP(Fila_ini,Columna_ini,color_Turno,color_Rival))
+
+            if (Value_UP(Fila_ini, Columna_ini, color_Turno, color_Rival))
+            {
+                for (int i = 1; i <= con_Fichas; i++)// el click en el boton me da la ficha actual
                 {
-                    for (int i = 1; i <= con_Fichas; i++)// el click en el boton me da la ficha actual
-                    {
-                        voltearFicha(Fila_ini - i, Columna_ini, color_Turno);                 
+                    voltearFicha(Fila_ini - i, Columna_ini, color_Turno);
+
+                }
+            }
+            if (Value_Up_Left(Fila_ini, Columna_ini, color_Turno, color_Rival))//analiza hacia arriba y a la izquierda
+            {
+                for (int i = 1; i <= con_Fichas; i++)// el click en el boton me da la ficha actual
+                {
+                    voltearFicha(Fila_ini - i, Columna_ini - i, color_Turno);
+                }
+            }
+            if (Value_Left(Fila_ini, Columna_ini, color_Turno, color_Rival))// analiza hacia la izquierda
+            {
+                for (int i = 1; i <= con_Fichas; i++)// el click en el boton me da la ficha actual
+                {
+                    voltearFicha(Fila_ini, Columna_ini - i, color_Turno);
+
+                }
+            }
+            if (Value_Down_Left(Fila_ini, Columna_ini, color_Turno, color_Rival)) // analiza hacia abajo y a la izquierda
+            {
+                for (int i = 1; i <= con_Fichas; i++)// el click en el boton me da la ficha actual
+                {
+                    voltearFicha(Fila_ini + i, Columna_ini - i, color_Turno);
+                }
+            }
+            if (Value_Down(Fila_ini, Columna_ini, color_Turno, color_Rival))// analiza hacia abajo
+            {
+                for (int i = 1; i <= con_Fichas; i++)// el click en el boton me da la ficha actual
+                {
+                    voltearFicha(Fila_ini + i, Columna_ini, color_Turno);
+                }
+            }
+            if (Value_Down_Rigth(Fila_ini, Columna_ini, color_Turno, color_Rival))//analiza hacia abajo y derecha
+            {
+                for (int i = 1; i <= con_Fichas; i++)// el click en el boton me da la ficha actual
+                {
+                    voltearFicha(Fila_ini + i, Columna_ini + i, color_Turno);
+                }
+            }
+            if (Value_Rigth(Fila_ini, Columna_ini, color_Turno, color_Rival))//analiza hacia la derecha
+            {
+                for (int i = 1; i <= con_Fichas; i++)// el click en el boton me da la ficha actual
+                {
+                    voltearFicha(Fila_ini, Columna_ini + i, color_Turno);
+                }
+            }
+            if (Value_UP_Rigth(Fila_ini, Columna_ini, color_Turno, color_Rival))//analiza hacia arriba y derecha
+            {
+                for (int i = 1; i <= con_Fichas; i++)// el click en el boton me da la ficha actual
+                {
+                    voltearFicha(Fila_ini - i, Columna_ini + i, color_Turno);
+                }
+            }
+
+        }
+
+
+
+        private void revPartida()
+        {
+            for (int i = 0; i < tab_Alto; i++)
+            {
+                for (int j = 0; j < tab_Ancho; j++)
+                {
+
+                }
+            }
+        }
+        //es para iniciar la partida
+        protected void Iniciar_Extream(object sender, EventArgs e)
+        {
+            tab_Alto = Int32.Parse(txtAltura.Text) + 2;
+            tab_Ancho = Int32.Parse(txtAncho.Text) + 2;
+            CrearTablero();
+            if (FileUpload1.HasFile)
+            {
+                LeerXML_Click();
+            }
+            else
+            {
+
+            }
+            Btn_Extream.Visible = false;
+            Btn_normal.Visible = false;
+            PanelFormulario.Visible = false;
+            Btn_Reset.Visible = true;
+            CrearXML.Visible = true;
+
+            //iniciarPartida_PVP();
+            imprimir_Tab();
+            //PartidaPVP.Visible = false;
+            //Partida_CPU.Visible = false;
+
+        }
+        protected void Restart(object sender, EventArgs e)
+        {
+        }
+
+
+        protected void selectcolor(object sender, EventArgs e)
+        {
+            for (int i = 0; i < CheckBoxList1.Items.Count; i++)
+            {
+                if (CheckBoxList1.Items[i].Selected)
+                {
                     
-                    }
-
-                if (Value_Up_Left(Fila_ini, Columna_ini, color_Turno, color_Rival))//analiza hacia arriba y a la izquierda
-                {
-                    for (int i = 1; i <= con_Fichas; i++)// el click en el boton me da la ficha actual
-                    {
-                        voltearFicha(Fila_ini - i, Columna_ini - i, color_Turno);
-                    }
-                }
-                if (Value_Left(Fila_ini, Columna_ini, color_Turno, color_Rival))// analiza hacia la izquierda
-                {
-                    for (int i = 1; i <= con_Fichas; i++)// el click en el boton me da la ficha actual
-                    {
-                        voltearFicha(Fila_ini, Columna_ini - i, color_Turno);
-
-                    }
-                }
-                if (Value_Down_Left(Fila_ini, Columna_ini, color_Turno, color_Rival)) // analiza hacia abajo y a la izquierda
-                {
-                    for (int i = 1; i <= con_Fichas; i++)// el click en el boton me da la ficha actual
-                    {
-                        voltearFicha(Fila_ini + i, Columna_ini - i, color_Turno);
-                    }
-                }
-                if (Value_Down(Fila_ini, Columna_ini, color_Turno, color_Rival))// analiza hacia abajo
-                {
-                    for (int i = 1; i <= con_Fichas; i++)// el click en el boton me da la ficha actual
-                    {
-                        voltearFicha(Fila_ini + i, Columna_ini, color_Turno);
-                    }
-                }
-                if (Value_Down_Rigth(Fila_ini, Columna_ini, color_Turno, color_Rival))//analiza hacia abajo y derecha
-                {
-                    for (int i = 1; i <= con_Fichas; i++)// el click en el boton me da la ficha actual
-                    {
-                        voltearFicha(Fila_ini + i, Columna_ini + i, color_Turno); 
-                    }
-                }
-                if (Value_Rigth(Fila_ini, Columna_ini, color_Turno, color_Rival))//analiza hacia la derecha
-                {
-                    for (int i = 1; i <= con_Fichas; i++)// el click en el boton me da la ficha actual
-                    {
-                        voltearFicha(Fila_ini, Columna_ini + i, color_Turno);
-                    }
-                }
-                if (Value_UP_Rigth(Fila_ini, Columna_ini, color_Turno, color_Rival))//analiza hacia arriba y derecha
-                {
-                    for (int i = 1; i <= con_Fichas; i++)// el click en el boton me da la ficha actual
-                    {
-                        voltearFicha(Fila_ini - i, Columna_ini + i, color_Turno);
-                    }
                 }
             }
         }
 
-        protected void Unnamed1_Tick(object sender, EventArgs e)
+
+        protected void buttonmania_Click(object sender, EventArgs e)
         {
-            TimeSpan ts = new TimeSpan(0, 0, 0, 0,(int)cronos.ElapsedMilliseconds);
-            lb_cronom.Text = ts.Seconds.ToString();
+            string s = string.Empty;
+
+            for (int i = 0; i < CheckBoxList1.Items.Count; i++)
+
+            {
+
+                if (CheckBoxList1.Items[i].Selected)
+                {
+                    s += CheckBoxList1.Items[i].Value + ";";
+                    
+                    CheckBoxList2.Items[i].Enabled = false;
+                }
+
+            }
+        }
+
+        protected void Btn_Extream_Click(object sender, EventArgs e)
+        {
+            PanelFormulario.Visible = true;
+            Btn_Extream.Visible = false;
+            Btn_normal.Visible = false;
+        }
+
+        protected void CerrarPanelForm_Click(object sender, EventArgs e)
+        {
+            PanelFormulario.Visible = false;
+            Btn_Extream.Visible = true;
+            Btn_normal.Visible = true;
         }
     }
+
 }
