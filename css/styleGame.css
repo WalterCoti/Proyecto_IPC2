@@ -3,14 +3,19 @@ body {
 }
 
 .head_Marcador {
-    Height: 100px;
-    background-color: blueviolet;
-    display: flex;
-    justify-content: center;
+    Height: 150px;
+    background-color: #E53935;
+    grid-row: auto;
 }
+.headTurno {
+    Height: 65px;
+    background-color: #1E88E5;
+    grid-row: auto;
+}
+
 .feet_Pagina {
     Height: 100px;
-    background-color: blueviolet;
+    background-color: #FF5722;
 }
 
 .tablero_Completo {
