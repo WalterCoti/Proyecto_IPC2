@@ -6,7 +6,8 @@ using System.Drawing;
 using System.Xml;
 using System.Linq;
 using System.Diagnostics;
-
+using System.Collections;
+using System.Xml.Linq;
 
 namespace Othello
 {
@@ -19,8 +20,10 @@ namespace Othello
         private static Celda[,] tablero;
         private static string Jugador_uno = "";
         private static string Jugador_dos = "";
-        private static List<string> Jug1 = new List<string>();
-        private static List<string> Jug2 = new List<string>();
+        private static string tipo_apertura = "";
+        private static string tipo_partida = "";
+        private static List<string> FichasJug1 = new List<string>();
+        private static List<string> FichasJug2 = new List<string>();
 
 
 
@@ -177,67 +180,114 @@ namespace Othello
             XmlDocument xml_doc = new XmlDocument();
             xml_doc.Load(filepath);
 
+
+
             foreach (XmlNode node in xml_doc.DocumentElement.ChildNodes)
             {
-                if (node.Name == "ficha")
+                if (node.Name == "filas")
                 {
-                    string xml_color = "";
-                    int xml_columna = 0;
-                    int xml_Fila = 0;
+                    tab_Alto = int.Parse(node.InnerText) + 2;
+                }
+                else if (node.Name == "columnas")
+                {
+                    tab_Ancho = int.Parse(node.InnerText) + 2;
+                }
+                else if (node.Name == "Jugador1")
+                {
                     for (int i = 0; i < node.ChildNodes.Count; i++)
                     {
-                        if (node.ChildNodes[i].Name == "color")
-                        {
-                            if (node.ChildNodes[i].InnerText == "blanco")
-                            {
-
-                                xml_color = "blanco";
-                                continue;
-                            }
-                            else
-                            {
-                                xml_color = "negro";
-                                continue;
-                            }
-                        }
-                        else if (node.ChildNodes[i].Name == "columna")
-                        {
-                            try
-                            {
-                                foreach (KeyValuePair<string, int> tmp_Alpha in alpha_to_int)
-                                {
-                                    if (tmp_Alpha.Key == node.ChildNodes[i].InnerText)
-                                    {
-                                        xml_columna = tmp_Alpha.Value;
-                                        break;
-                                    }
-                                }
-                                continue;
-                            } catch (Exception exept)
-                            {
-                                MessageBox.Show("Esta ficha no puede colocarse fuera del tablero");
-                            }
-                        }
-                        else
-                        {
-                            xml_Fila = int.Parse(node.ChildNodes[i].InnerText);
-
-                            xml_cambio(xml_color, xml_Fila, xml_columna);
-                            continue;
-                        }
+                        FichasJug1.Add(node.ChildNodes[i].InnerText);
                     }
                 }
-                if (node.Name == "siguienteTiro")
+                else if (node.Name == "Jugador2")
                 {
                     for (int i = 0; i < node.ChildNodes.Count; i++)
                     {
-                        if (node.ChildNodes[i].InnerText == "blanco")
+                        FichasJug2.Add(node.ChildNodes[i].InnerText);
+                    }
+                }
+                else if (node.Name == "Modalidad")
+                {
+                    string modalida = node.InnerText;
+                    string[] mod = modalida.Split('|');
+                    if (mod[0] == ("Normal"))
+                    {
+                        tipo_apertura = "Normal";
+                    }
+                    else
+                    {
+                        tipo_apertura = "Libre";
+                    }
+                    if (mod[1] == "Inversa")
+                    {
+                        tipo_partida = "inversa";
+                    }
+                    else
+                    {
+                        tipo_partida = "normal";
+                    }
+
+                }
+                else
+                {
+                    CrearTablero();
+                    foreach(XmlNode tab in node.ChildNodes)
+                    {
+                        if (tab.Name == "ficha")
                         {
-                            ViewState["turno"] = 0;
+                            string xml_color = "";
+                            int xml_columna = 0;
+                            int xml_Fila = 0;
+                            for (int i = 0; i < tab.ChildNodes.Count; i++)
+                            {
+                                if (tab.ChildNodes[i].Name == "color")
+                                {
+                                    xml_color = tab.ChildNodes[i].InnerText;
+
+                                }
+                                else if (tab.ChildNodes[i].Name == "columna")
+                                {
+                                    try
+                                    {
+                                        foreach (KeyValuePair<string, int> tmp_Alpha in alpha_to_int)
+                                        {
+                                            if (tmp_Alpha.Key == tab.ChildNodes[i].InnerText)
+                                            {
+                                                xml_columna = tmp_Alpha.Value;
+                                                break;
+                                            }
+                                        }
+                                        continue;
+                                    }
+                                    catch (Exception exept)
+                                    {
+                                        MessageBox.Show("Esta ficha no puede colocarse fuera del tablero");
+                                    }
+                                }
+                                else
+                                {
+                                    xml_Fila = int.Parse(tab.ChildNodes[i].InnerText);
+
+                                    colocarFicha(xml_color, xml_Fila, xml_columna);
+                                    continue;
+                                }
+                            }
                         }
-                        else
+                        if (tab.Name == "siguienteTiro")
                         {
-                            ViewState["turno"] = 1;
+                            for (int i = 0; i < tab.ChildNodes.Count; i++)
+                            {
+                                string colorsig = tab.ChildNodes[i].InnerText;
+
+                                if (FichasJug1.Contains(colorsig))
+                                {
+                                    ViewState["turno"] = 0;
+                                }
+                                else
+                                {
+                                    ViewState["turno"] = 1;
+                                }
+                            }
                         }
                     }
                 }
@@ -246,46 +296,102 @@ namespace Othello
 
         }
 
-        private void xml_cambio(string color, int Fila, int Columna)
+        private void colocarFicha(string color, int Fila, int Columna)
         {
             string txt_Columna = "";
             try
             {
-                Celda xmlCelda = tablero[Fila - 1, Columna - 1];
-                if (Fila > tab_Alto - 1 || Columna > tab_Ancho - 1)
+                Celda xmlCelda = tablero[Fila , Columna ];
+                if (Fila > tab_Alto-1 || Columna > tab_Ancho - 1)
                 {
                     MessageBox.Show("Esta ficha no puede colocarse fuera del tablero");
                 }
                 else if (xmlCelda.TieneFicha)
                 {
-
+               
                 }
                 else
                 {
-                    if (color == "blanco")
+                    if (color == "rojo")
+                    {
+                        xmlCelda.Enabled = false;
+                        xmlCelda.BackColor = Color.Red;
+                        xmlCelda.colorFicha = "rojo";
+                        xmlCelda.TieneFicha = true;
+                    }
+                    else if (color == "amarillo")
+                    {
+                        xmlCelda.Enabled = false;
+                        xmlCelda.BackColor = Color.Yellow;
+                        xmlCelda.colorFicha = "amarillo";
+                        xmlCelda.TieneFicha = true;
+                    }
+                    else if (color == "azul")
+                    {
+                        xmlCelda.Enabled = false;
+                        xmlCelda.BackColor = Color.Blue;
+                        xmlCelda.colorFicha = "azul";
+                        xmlCelda.TieneFicha = true;
+                    }
+                    else if (color == "anaranjado")
+                    {
+                        xmlCelda.Enabled = false;
+                        xmlCelda.BackColor = Color.Orange;
+                        xmlCelda.colorFicha = "anaranjado";
+                        xmlCelda.TieneFicha = true;
+                    }
+                    else if (color == "verde")
+                    {
+                        xmlCelda.Enabled = false;
+                        xmlCelda.BackColor = Color.Green;
+                        xmlCelda.colorFicha = "verde";
+                        xmlCelda.TieneFicha = true;
+                    }
+                    else if (color == "violeta")
+                    {
+                        xmlCelda.Enabled = false;
+                        xmlCelda.BackColor = Color.Violet;
+                        xmlCelda.colorFicha = "violeta";
+                        xmlCelda.TieneFicha = true;
+                    }
+                    else if (color == "blanco")
                     {
                         xmlCelda.Enabled = false;
                         xmlCelda.BackColor = Color.White;
                         xmlCelda.colorFicha = "blanco";
                         xmlCelda.TieneFicha = true;
                     }
-                    else
+                    else if (color == "negro")
                     {
                         xmlCelda.Enabled = false;
                         xmlCelda.BackColor = Color.Black;
                         xmlCelda.colorFicha = "negro";
                         xmlCelda.TieneFicha = true;
                     }
+                    else if (color == "celeste")
+                    {
+                        xmlCelda.Enabled = false;
+                        xmlCelda.BackColor = Color.LightSkyBlue;
+                        xmlCelda.colorFicha = "celeste";
+                        xmlCelda.TieneFicha = true;
+                    }
+                    else if (color == "gris")
+                    {
+                        xmlCelda.Enabled = false;
+                        xmlCelda.BackColor = Color.Gray;
+                        xmlCelda.colorFicha = "gris";
+                        xmlCelda.TieneFicha = true;
+                    }
                 }
             }
             catch (Exception ex)
             {
-
                 MessageBox.Show("Esta ficha no puede colocarse en la posicion " + Fila.ToString() + " " + txt_Columna);
             }
 
 
         }
+
 
         protected void CrearXML_Click(object sender, EventArgs e)
         {
@@ -454,7 +560,7 @@ namespace Othello
                             }
                             else
                             {
-                                tablero[i, j].BackColor = Color.Green;
+                                tablero[i, j].BackColor = Color.LightGreen;
                                 tablero[i, j].Enabled = false;
 
                                 if (Value_UP(i, j, Color_Act, Color_rival)) //analiza hacia arriba
@@ -883,7 +989,7 @@ namespace Othello
         }
 
 
-
+//para revisar si alguien gano
         private void revPartida()
         {
             for (int i = 0; i < tab_Alto; i++)
@@ -895,18 +1001,21 @@ namespace Othello
             }
         }
         //es para iniciar la partida
+
         protected void Iniciar_Extream(object sender, EventArgs e)
         {
-            tab_Alto = Int32.Parse(txtAltura.Text) + 2;
-            tab_Ancho = Int32.Parse(txtAncho.Text) + 2;
-            CrearTablero();
             if (FileUpload1.HasFile)
             {
                 LeerXML_Click();
             }
             else
             {
-
+                tab_Alto = Int32.Parse(txtAltura.Text) + 2;
+                tab_Ancho = Int32.Parse(txtAncho.Text) + 2;
+                Jugador_dos = Usuario_dos.Text;
+                lblJugador1.Text = Login.UsuarioLog;
+                lblJugador2.Text = Jugador_dos;
+                CrearTablero();
             }
             Btn_Extream.Visible = false;
             Btn_normal.Visible = false;
@@ -922,37 +1031,30 @@ namespace Othello
         }
         protected void Restart(object sender, EventArgs e)
         {
-        }
 
-
-        protected void selectcolor(object sender, EventArgs e)
-        {
-            for (int i = 0; i < CheckBoxList1.Items.Count; i++)
-            {
-                if (CheckBoxList1.Items[i].Selected)
-                {
-                    
-                }
-            }
         }
 
 
         protected void buttonmania_Click(object sender, EventArgs e)
         {
-            string s = string.Empty;
-
+            int count = 0;
+            CheckBoxList2.Enabled = true;
             for (int i = 0; i < CheckBoxList1.Items.Count; i++)
-
             {
-
-                if (CheckBoxList1.Items[i].Selected)
+                if (count < 5)
                 {
-                    s += CheckBoxList1.Items[i].Value + ";";
-                    
-                    CheckBoxList2.Items[i].Enabled = false;
+                    if (CheckBoxList1.Items[i].Selected)
+                    {
+                        FichasJug1.Add(CheckBoxList1.Items[i].Value);
+                        CheckBoxList2.Items[i].Enabled = false;
+                        count += 1;
+                    }
                 }
 
             }
+            confirmcolor.Enabled = false;
+            CheckBoxList1.Enabled = false;
+            confirmCol2.Enabled = true;
         }
 
         protected void Btn_Extream_Click(object sender, EventArgs e)
@@ -967,6 +1069,22 @@ namespace Othello
             PanelFormulario.Visible = false;
             Btn_Extream.Visible = true;
             Btn_normal.Visible = true;
+        }
+
+        protected void confirmCol2_Click(object sender, EventArgs e)
+        {
+            int count = 0;
+            for (int i = 0; i < CheckBoxList2.Items.Count; i++)
+            {
+                if (count < 5)
+                {
+                    FichasJug2.Add(CheckBoxList2.Items[i].Value);
+                    count += 1;
+                    
+                }
+
+            }
+            confirmCol2.Enabled = false;
         }
     }
 

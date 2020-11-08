@@ -83,7 +83,7 @@
                                             <div class="form-group row ">
                                                 <div class="col-4" align="left">    
                                                 <h4><asp:Label ID="Label1" runat="server" Text="Jugador 1"></asp:Label></h4>
-                                                <asp:CheckBoxList ID="CheckBoxList1" runat="server" OnSelectedIndexChanged="selectcolor" class="align-self-lg-start">
+                                                <asp:CheckBoxList ID="CheckBoxList1" runat="server" class="align-self-lg-start">
                                                     <asp:ListItem value="rojo">Rojo</asp:ListItem>
                                                     <asp:ListItem value="amarillo">Amarillo</asp:ListItem>
                                                     <asp:ListItem value="anaranjado">Anaranjado</asp:ListItem>
@@ -95,12 +95,12 @@
                                                     <asp:ListItem value="celeste">Celeste</asp:ListItem>
                                                     <asp:ListItem value="gris">Gris</asp:ListItem>
                                                 </asp:CheckBoxList>
-                                                     <asp:Button ID="buttonmania" runat="server" Text="Confirm Colores" OnClick="buttonmania_Click" />
+                                                     <asp:Button ID="confirmcolor" runat="server" Text="Confirm Colores" OnClick="buttonmania_Click" />
 
                                             </div>
                                             <div  class="col-4" align="left">
-                                                <h4><asp:Label ID="Label2" runat="server" Text="Jugador 2"></asp:Label></h4>
-                                                <asp:CheckBoxList ID="CheckBoxList2" runat="server">
+                                                <h4><asp:Label ID="Label2" runat="server" Text="Jugador 2" ></asp:Label></h4>
+                                                <asp:CheckBoxList ID="CheckBoxList2" runat="server" Enabled="false">
                                                     <asp:ListItem value="rojo">Rojo</asp:ListItem>
                                                     <asp:ListItem value="amarillo">Amarillo</asp:ListItem>
                                                     <asp:ListItem value="anaranjado">Anaranjado</asp:ListItem>
@@ -113,7 +113,7 @@
                                                     <asp:ListItem value="gris">Gris</asp:ListItem>
                                                 </asp:CheckBoxList>
                                                
-                                               <asp:Button ID="button1" runat="server" Text="Confirm Colores" OnClick="buttonmania_Click" />
+                                               <asp:Button ID="confirmCol2" runat="server" Text="Confirm Colores" OnClick="confirmCol2_Click" Enabled="false"/>
                                             </div>
                                             </div>
                                         </div>

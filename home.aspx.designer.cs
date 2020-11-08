@@ -150,13 +150,13 @@ namespace Othello
         protected global::System.Web.UI.WebControls.CheckBoxList CheckBoxList1;
 
         /// <summary>
-        /// Control buttonmania.
+        /// Control confirmcolor.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button buttonmania;
+        protected global::System.Web.UI.WebControls.Button confirmcolor;
 
         /// <summary>
         /// Control Label2.
@@ -177,13 +177,13 @@ namespace Othello
         protected global::System.Web.UI.WebControls.CheckBoxList CheckBoxList2;
 
         /// <summary>
-        /// Control button1.
+        /// Control confirmCol2.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button button1;
+        protected global::System.Web.UI.WebControls.Button confirmCol2;
 
         /// <summary>
         /// Control FileUpload1.
